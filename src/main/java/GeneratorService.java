@@ -38,6 +38,7 @@ public class GeneratorService extends Service<BufferedImage> {
             if (files != null) {
                 spriteSheet = new BufferedImage(spriteSheetX * imageX, spriteSheetY * imageY, BufferedImage.TYPE_INT_ARGB);
                 for (int i = 0; i < files.size(); i++) {
+                    updateProgress(i+1, files.size());
                     BufferedImage image = ImageIO.read(files.get(i));
                     for (int x = 0; x < imageX; x++) {
                         for (int y = 0; y < imageY; y++) {

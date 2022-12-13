@@ -20,6 +20,15 @@ public class App extends Application {
         primaryStage.setWidth(900);
         primaryStage.setHeight(700);
         primaryStage.show();
+        long maxMemory = Runtime.getRuntime().maxMemory();
+        /* Maximum amount of memory the JVM will attempt to use */
+        System.out.println("Maximum memory (gigabytes): " +
+                (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory/1000000000));
+
+        /* Total memory currently in use by the JVM */
+        System.out.println("Total memory (gigabytes): " +
+                Runtime.getRuntime().totalMemory()/1000000000);
+
     }
 
     public static void main(String[] args) {
