@@ -42,6 +42,7 @@ public class ButtonController {
                 try {
                     ImageIO.write(service.getValue(), "png", new File(location.getAbsolutePath() + ".png"));
                     progressBar.setVisible(false);
+                    progressBar.setProgress(0);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -52,6 +53,8 @@ public class ButtonController {
             });
             service.setOnFailed(event1 -> {
                 try {
+                    progressBar.setVisible(false);
+                    progressBar.setProgress(0);
                     throw event1.getSource().getException();
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
@@ -68,6 +71,7 @@ public class ButtonController {
         File location = new FileChooser().showSaveDialog(window);
         if (location != null) {
             service.setOnSucceeded(event1 -> {
+                progressBar.setProgress(0);
                 ScalorService scalorService = new ScalorService(spriteSheetX, spriteSheetY, service.getValue(), location);
                 progressBar.setVisible(false);
                 scalorService.setOnFailed(event2 -> {
@@ -112,6 +116,7 @@ public class ButtonController {
             GraphicsContext gc = canvas.getGraphicsContext2D();
             PreviewService previewService = new PreviewService(files);
             previewService.setOnSucceeded(event1 -> {
+                progressBar.setProgress(0);
                 List<ImageView> imageViews = previewService.getValue();
                 for (int i = 0; i < files.size(); i++) {
                     imageViews.get(i).setPreserveRatio(false);
@@ -125,6 +130,8 @@ public class ButtonController {
             });
             previewService.setOnFailed(event2 -> {
                 try {
+                    progressBar.setVisible(false);
+                    progressBar.setProgress(0);
                     throw event2.getSource().getException();
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
