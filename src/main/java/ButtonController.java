@@ -104,7 +104,11 @@ public class ButtonController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose files");
 
-        files.addAll(fileChooser.showOpenMultipleDialog(window));
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(window);
+        if (selectedFiles == null || selectedFiles.isEmpty())
+            return;
+
+        files.addAll(selectedFiles);
 
         if (files != null) {
             javafx.scene.image.Image imageTemp = new javafx.scene.image.Image(files.get(0).toURI().toURL().toString());
@@ -118,6 +122,7 @@ public class ButtonController {
             previewService.setOnSucceeded(event1 -> {
                 progressBar.setProgress(0);
                 List<ImageView> imageViews = previewService.getValue();
+                canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); // You forgot to clear it before drawing on it
                 for (int i = 0; i < files.size(); i++) {
                     imageViews.get(i).setPreserveRatio(false);
                     imageViews.get(i).setFitHeight(canvas.getWidth()/spriteSheetX);
@@ -147,7 +152,7 @@ public class ButtonController {
     }
 
     private int getSmallestSquareSide(int num){
-        return (int)Math.sqrt(num)+1;
+        return (int) Math.ceil(Math.sqrt(num)); //Your fix wasn't quite right, this is better as it allow filling the canvas fully before resizing;
     }
 
 }
