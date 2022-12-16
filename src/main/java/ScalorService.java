@@ -39,7 +39,10 @@ public class ScalorService extends Service<Void> {
             ImageIO.write(resizeImage(initialImage, spriteSheetX*720, spriteSheetY*720), "png", new File(path.getAbsolutePath() + "720p.png"));
             return null;
         }
-        BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) throws IOException {
+        BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+            if (originalImage == null)
+                return null;
+
             Image resultingImage = originalImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT);
             BufferedImage outputImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
             outputImage.getGraphics().drawImage(resultingImage, 0, 0, null);
