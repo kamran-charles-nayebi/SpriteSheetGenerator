@@ -1,9 +1,25 @@
+//SpriteSheetGenerator, a simple app that generates sprite sheets and does other useful tasks for making images usable in video games
+//        Copyright (C) 2022 Kamran Charles Nayebi
+//
+//        This program is free software: you can redistribute it and/or modify
+//        it under the terms of the GNU General Public License as published by
+//        the Free Software Foundation, either version 3 of the License, or
+//        (at your option) any later version.
+//
+//        This program is distributed in the hope that it will be useful,
+//        but WITHOUT ANY WARRANTY; without even the implied warranty of
+//        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//        GNU General Public License for more details.
+//
+//        You should have received a copy of the GNU General Public License
+//        along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 import javax.imageio.ImageIO;
@@ -20,6 +36,8 @@ public class ButtonController {
     public javafx.stage.Window window;
 
     private List<File> files;
+
+    private File outputDirectory;
 
     @FXML
     private Canvas canvas;
@@ -153,6 +171,32 @@ public class ButtonController {
 
     private int getSmallestSquareSide(int num){
         return (int) Math.ceil(Math.sqrt(num)); //Your fix wasn't quite right, this is better as it allow filling the canvas fully before resizing;
+    }
+
+    @FXML
+    void setOutputDirectory(ActionEvent event) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Choose output directory");
+
+        File directory = directoryChooser.showDialog(window);
+        if (directory == null || directory.isFile())
+            return;
+        outputDirectory = directory;
+    }
+
+    @FXML
+    void trimImages(ActionEvent event) {
+        EmptySpaceTrimmerService service = new EmptySpaceTrimmerService(files, outputDirectory);
+        service.setOnFailed(event1 -> {
+            try {
+                progressBar.setVisible(false);
+                progressBar.setProgress(0);
+                throw event1.getSource().getException();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        });
+        service.restart();
     }
 
 }
