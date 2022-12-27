@@ -50,6 +50,15 @@ public class GeneratorService extends Service<BufferedImage> {
 
         @Override
         protected BufferedImage call() throws Exception {
+            System.out.println("Before generator");
+            long maxMemory = Runtime.getRuntime().maxMemory();
+            /* Maximum amount of memory the JVM will attempt to use */
+            System.out.println("Maximum memory (gigabytes): " +
+                    (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory/1000000000));
+
+            /* Total memory currently in use by the JVM */
+            System.out.println("Total memory (gigabytes): " +
+                    Runtime.getRuntime().totalMemory()/1000000000);
             if (files == null)
                 return null;
             BufferedImage spriteSheet = new BufferedImage(spriteSheetX * imageX, spriteSheetY * imageY, BufferedImage.TYPE_INT_ARGB);

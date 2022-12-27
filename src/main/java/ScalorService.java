@@ -48,10 +48,19 @@ public class ScalorService extends Service<Void> {
 
         @Override
         protected Void call() throws Exception {
-            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 2160/initialImage.getHeight(), 2160), "png", new File(path.getAbsolutePath() + "2160p.png"));
-            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 1440/initialImage.getHeight(), 1440), "png", new File(path.getAbsolutePath() + "1440p.png"));
-            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 1080/initialImage.getHeight(), 1080), "png", new File(path.getAbsolutePath() + "1080p.png"));
-            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 720/initialImage.getHeight(), 720), "png", new File(path.getAbsolutePath() + "720p.png"));
+            System.out.println("Before scaling");
+            long maxMemory = Runtime.getRuntime().maxMemory();
+            /* Maximum amount of memory the JVM will attempt to use */
+            System.out.println("Maximum memory (gigabytes): " +
+                    (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory/1000000000));
+
+            /* Total memory currently in use by the JVM */
+            System.out.println("Total memory (gigabytes): " +
+                    Runtime.getRuntime().totalMemory()/1000000000);
+            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 2160/initialImage.getHeight() * spriteSheetX, 2160 * spriteSheetY), "png", new File(path.getAbsolutePath() + "2160p.png"));
+            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 1440/initialImage.getHeight() * spriteSheetX, 1440 * spriteSheetY), "png", new File(path.getAbsolutePath() + "1440p.png"));
+            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 1080/initialImage.getHeight() * spriteSheetX, 1080 * spriteSheetY), "png", new File(path.getAbsolutePath() + "1080p.png"));
+            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 720/initialImage.getHeight() * spriteSheetX, 720 * spriteSheetY), "png", new File(path.getAbsolutePath() + "720p.png"));
             return null;
         }
         BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
