@@ -17,6 +17,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.stage.DirectoryChooser;
@@ -25,11 +28,12 @@ import javafx.stage.FileChooser;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
 
 public class ButtonController {
 
@@ -45,11 +49,15 @@ public class ButtonController {
     @FXML
     private ProgressBar progressBar;
 
+    @FXML
+    private CheckBox previewCheckBox;
+
     int imageX, imageY, spriteSheetX, spriteSheetY;
 
     public void setWindow(javafx.stage.Window window){
         this.window = window;
         files = new ArrayList<>();
+        loadSettings();
     }
     @FXML
     void generate(ActionEvent event){
@@ -144,37 +152,12 @@ public class ButtonController {
             spriteSheetX = getSmallestSquareSide(files.size());
             spriteSheetY = files.size() / spriteSheetX + 1;
 
-            GraphicsContext gc = canvas.getGraphicsContext2D();
-            PreviewService previewService = new PreviewService(files);
-            previewService.setOnSucceeded(event1 -> {
-                progressBar.setProgress(0);
-                List<ImageView> imageViews = previewService.getValue();
-                canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); // You forgot to clear it before drawing on it
-                for (int i = 0; i < files.size(); i++) {
-                    imageViews.get(i).setPreserveRatio(false);
-                    imageViews.get(i).setFitHeight(canvas.getWidth()/spriteSheetX);
-                    imageViews.get(i).setFitWidth(canvas.getHeight()/spriteSheetX);
-                    gc.drawImage(imageViews.get(i).snapshot(null, null), i % spriteSheetX * canvas.getWidth()/spriteSheetX, i / spriteSheetX * canvas.getHeight()/spriteSheetX);
-                }
-                imageViews = null;
-                System.gc();
-                progressBar.setVisible(false);
-            });
-            previewService.setOnFailed(event2 -> {
-                try {
-                    progressBar.setVisible(false);
-                    progressBar.setProgress(0);
-                    throw event2.getSource().getException();
-                } catch (Throwable e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            previewService.progressProperty().addListener((a, o, n) -> {
-                if (n != null)
-                    progressBar.setProgress(n.doubleValue());
-            });
-            progressBar.setVisible(true);
-            previewService.restart();
+            if (spriteSheetX * imageX > 16384){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                        "This spritesheet will be over 16384 pixels, which is more than godot can use. Do you still want to proceed?", ButtonType.YES, ButtonType.NO);
+                Optional<ButtonType> answer = alert.showAndWait();
+                answer.ifPresent(this::updateCanvas);
+            }
         }
     }
 
@@ -208,4 +191,63 @@ public class ButtonController {
         service.restart();
     }
 
+    void updateCanvas(ButtonType buttonType) {
+        if (buttonType.equals(ButtonType.YES) && previewCheckBox.isSelected()) {
+            GraphicsContext gc = canvas.getGraphicsContext2D();
+            PreviewService previewService = new PreviewService(files);
+            previewService.setOnSucceeded(event1 -> {
+                progressBar.setProgress(0);
+                List<ImageView> imageViews = previewService.getValue();
+                canvas.getGraphicsContext2D().clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); // You forgot to clear it before drawing on it
+                for (int i = 0; i < files.size(); i++) {
+                    imageViews.get(i).setPreserveRatio(false);
+                    imageViews.get(i).setFitHeight(canvas.getWidth() / spriteSheetX);
+                    imageViews.get(i).setFitWidth(canvas.getHeight() / spriteSheetX);
+                    gc.drawImage(imageViews.get(i).snapshot(null, null), i % spriteSheetX * canvas.getWidth() / spriteSheetX, i / spriteSheetX * canvas.getHeight() / spriteSheetX);
+                }
+                imageViews = null;
+                System.gc();
+                progressBar.setVisible(false);
+            });
+            previewService.setOnFailed(event2 -> {
+                try {
+                    progressBar.setVisible(false);
+                    progressBar.setProgress(0);
+                    throw event2.getSource().getException();
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            previewService.progressProperty().addListener((a, o, n) -> {
+                if (n != null)
+                    progressBar.setProgress(n.doubleValue());
+            });
+            progressBar.setVisible(true);
+            previewService.restart();
+        }
+    }
+
+    @FXML
+    void onCheckboxSelected(ActionEvent event) {
+        try {
+            FileWriter fw = new FileWriter("settings.txt");
+            fw.write(String.valueOf(previewCheckBox.isSelected()));
+            fw.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void loadSettings(){
+        if (new File("settings.txt").exists()) {
+            try {
+                FileReader fr = new FileReader("settings.txt");
+                Scanner sc = new Scanner(fr);
+                previewCheckBox.setSelected(Boolean.parseBoolean(sc.next()));
+                fr.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
