@@ -57,10 +57,10 @@ public class ScalorService extends Service<Void> {
             /* Total memory currently in use by the JVM */
             System.out.println("Total memory (gigabytes): " +
                     Runtime.getRuntime().totalMemory()/1000000000);
-            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 2160/initialImage.getHeight() * spriteSheetX, 2160 * spriteSheetY), "png", new File(path.getAbsolutePath() + "2160p.png"));
-            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 1440/initialImage.getHeight() * spriteSheetX, 1440 * spriteSheetY), "png", new File(path.getAbsolutePath() + "1440p.png"));
-            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 1080/initialImage.getHeight() * spriteSheetX, 1080 * spriteSheetY), "png", new File(path.getAbsolutePath() + "1080p.png"));
-            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 720/initialImage.getHeight() * spriteSheetX, 720 * spriteSheetY), "png", new File(path.getAbsolutePath() + "720p.png"));
+            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 2160/initialImage.getHeight() * spriteSheetY, 2160 * spriteSheetY), "png", new File(path.getAbsolutePath() + "2160p.png"));
+            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 1440/initialImage.getHeight() * spriteSheetY, 1440 * spriteSheetY), "png", new File(path.getAbsolutePath() + "1440p.png"));
+            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 1080/initialImage.getHeight() * spriteSheetY, 1080 * spriteSheetY), "png", new File(path.getAbsolutePath() + "1080p.png"));
+            ImageIO.write(resizeImage(initialImage, initialImage.getWidth() * 720/initialImage.getHeight() * spriteSheetY, 720 * spriteSheetY), "png", new File(path.getAbsolutePath() + "720p.png"));
             return null;
         }
         BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {

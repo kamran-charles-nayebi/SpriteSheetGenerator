@@ -34,7 +34,7 @@ public class App extends Application {
         primaryStage.setTitle("Sprite sheet generator");
         primaryStage.setScene(scene);
         primaryStage.setWidth(900);
-        primaryStage.setHeight(700);
+        primaryStage.setHeight(800);
         primaryStage.show();
         long maxMemory = Runtime.getRuntime().maxMemory();
         /* Maximum amount of memory the JVM will attempt to use */

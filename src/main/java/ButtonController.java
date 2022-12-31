@@ -158,6 +158,9 @@ public class ButtonController {
                 Optional<ButtonType> answer = alert.showAndWait();
                 answer.ifPresent(this::updateCanvas);
             }
+            else {
+                updateCanvas(ButtonType.YES);
+            }
         }
     }
 
