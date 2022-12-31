@@ -74,6 +74,7 @@
                   <VBox alignment="CENTER" prefHeight="200.0" prefWidth="200.0" spacing="20.0">
                      <children>
                         <Button mnemonicParsing="false" onAction="#setOutputDirectory" text="Set output directory" />
+                        <Button mnemonicParsing="false" onAction="#rotateImages" text="Rotate images" />
                         <Button mnemonicParsing="false" onAction="#trimImages" text="Trim images" />
                         <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0">
                            <children>

@@ -191,6 +191,21 @@ public class ButtonController {
         service.restart();
     }
 
+    @FXML
+    void rotateImages(ActionEvent event) {
+        ImageRotatorService service = new ImageRotatorService(files, outputDirectory);
+        service.setOnFailed(event1 -> {
+            try {
+                progressBar.setVisible(false);
+                progressBar.setProgress(0);
+                throw event1.getSource().getException();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        });
+        service.restart();
+    }
+
     void updateCanvas(ButtonType buttonType) {
         if (buttonType.equals(ButtonType.YES) && previewCheckBox.isSelected()) {
             GraphicsContext gc = canvas.getGraphicsContext2D();
