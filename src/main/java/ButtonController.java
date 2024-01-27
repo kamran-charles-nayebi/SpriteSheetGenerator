@@ -70,6 +70,7 @@ public class ButtonController {
         /* Total memory currently in use by the JVM */
         System.out.println("Total memory (gigabytes): " +
                 Runtime.getRuntime().totalMemory()/1000000000);
+
         GeneratorService service = new GeneratorService(imageX, imageY, spriteSheetX, spriteSheetY, files);
         File location = new FileChooser().showSaveDialog(window);
         if (location != null) {

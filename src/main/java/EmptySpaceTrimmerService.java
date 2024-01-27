@@ -15,6 +15,7 @@
 //        along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import util.ImageUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -24,14 +25,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Math.abs;
+import static util.ImageUtils.findRowsOfEmptyPixels;
 
 public class EmptySpaceTrimmerService extends Service<Void> {
 
     private List<File> files;
 
     private File savePath;
-
-    enum SIDE{TOP,RIGHT,LEFT,BOTTOM}
 
     public EmptySpaceTrimmerService(List<File> files, File savePath) {
         this.files = files;
@@ -52,10 +52,10 @@ public class EmptySpaceTrimmerService extends Service<Void> {
             for (int i = 0; i < files.size(); i++) {
                 updateProgress(i+1, files.size());
                 BufferedImage sprite = ImageIO.read(files.get(i));
-                int rowsOfEmptyPixelsLeft = findRowsOfEmptyPixels(sprite, SIDE.LEFT);
-                int rowsOfEmptyPixelsTop = findRowsOfEmptyPixels(sprite, SIDE.TOP);
-                int rowsOfEmptyPixelsBottom = findRowsOfEmptyPixels(sprite, SIDE.BOTTOM);
-                int rowsOfEmptyPixelsRight = findRowsOfEmptyPixels(sprite, SIDE.RIGHT);
+                int rowsOfEmptyPixelsLeft = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.LEFT);
+                int rowsOfEmptyPixelsTop = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.TOP);
+                int rowsOfEmptyPixelsBottom = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.BOTTOM);
+                int rowsOfEmptyPixelsRight = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.RIGHT);
                 BufferedImage resizedImage = new BufferedImage(sprite.getWidth() - rowsOfEmptyPixelsRight - rowsOfEmptyPixelsLeft,
                         sprite.getHeight() - rowsOfEmptyPixelsBottom - rowsOfEmptyPixelsTop, BufferedImage.TYPE_INT_ARGB);
                 for (int x = 0; x < resizedImage.getWidth(); x++) {
@@ -67,26 +67,6 @@ public class EmptySpaceTrimmerService extends Service<Void> {
             }
             return null;
         }
-        static int findRowsOfEmptyPixels(BufferedImage image, SIDE side) {
-            int rowsOfEmptyPixels = 0, direction, start, wrap;
-            boolean rotated = false;
-            switch (side){
-                case TOP: start = 0; direction = 1; wrap = image.getWidth(); break;
-                case BOTTOM: start = image.getHeight() - 1; direction = -1; wrap = image.getWidth(); break;
-                case LEFT: start = 0; direction = 1; wrap = image.getHeight(); rotated = true; break;
-                case RIGHT: start = image.getWidth() - 1; direction = -1; wrap = image.getWidth(); rotated = true; break;
-                default: throw new RuntimeException("No side provided");
-            }
-            int stop = start == 0 ? rotated ? image.getWidth(): image.getHeight() : 0;
 
-            for (int x = start; x != stop && rowsOfEmptyPixels == 0; x += direction) {
-                for (int y = 0; y < wrap; y++) {
-                    if ((image.getRGB(rotated ? x : y, rotated ? y : x) & 0xff000000) >>> 24 != 0){
-                        rowsOfEmptyPixels = abs(x-start);
-                    }
-                }
-            }
-            return rowsOfEmptyPixels;
-        }
     }
 }
