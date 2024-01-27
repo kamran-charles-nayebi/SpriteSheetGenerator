@@ -25,18 +25,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static util.ImageUtils.SIDE.*;
 import static util.ImageUtils.findRowsOfEmptyPixels;
 
 public class GeneratorService extends Service<BufferedImage> {
 
-    int imageX;
-    int imageY;
-    int spriteSheetX;
-    int spriteSheetY;
-    int rowsOfEmptyPixelsLeft   = Integer.MAX_VALUE;
-    int rowsOfEmptyPixelsTop    = Integer.MAX_VALUE;
-    int rowsOfEmptyPixelsBottom = Integer.MAX_VALUE;
-    int rowsOfEmptyPixelsRight  = Integer.MAX_VALUE;
+    private static final int DEFAULT_ROWS_OF_EMPTY_PIXELS = Integer.MAX_VALUE;
+
+    private int imageX;
+    private int imageY;
+    private int spriteSheetX;
+    private int spriteSheetY;
+    private int rowsOfEmptyPixelsLeft = DEFAULT_ROWS_OF_EMPTY_PIXELS;
+    private int rowsOfEmptyPixelsTop = DEFAULT_ROWS_OF_EMPTY_PIXELS;
+    private int rowsOfEmptyPixelsBottom = DEFAULT_ROWS_OF_EMPTY_PIXELS;
+    private int rowsOfEmptyPixelsRight = DEFAULT_ROWS_OF_EMPTY_PIXELS;
 
     private List<File> files;
 
@@ -54,6 +57,23 @@ public class GeneratorService extends Service<BufferedImage> {
     }
 
     class GeneratorTask extends Task<BufferedImage> {
+        private void updateRowsOfEmptyPixels(BufferedImage sprite, ImageUtils.SIDE side) {
+            int emptyPixels = findRowsOfEmptyPixels(sprite, side);
+            switch (side) {
+                case LEFT:
+                    rowsOfEmptyPixelsLeft = Math.min(emptyPixels, rowsOfEmptyPixelsLeft);
+                    break;
+                case RIGHT:
+                    rowsOfEmptyPixelsRight = Math.min(emptyPixels, rowsOfEmptyPixelsRight);
+                    break;
+                case TOP:
+                    rowsOfEmptyPixelsTop = Math.min(emptyPixels, rowsOfEmptyPixelsTop);
+                    break;
+                case BOTTOM:
+                    rowsOfEmptyPixelsBottom = Math.min(emptyPixels, rowsOfEmptyPixelsBottom);
+                    break;
+            }
+        }
 
         @Override
         protected BufferedImage call() throws Exception {
@@ -68,19 +88,12 @@ public class GeneratorService extends Service<BufferedImage> {
                     sprite = ImageIO.read(file);
                 } catch (IOException e) {
                     System.out.println("Error while reading file:" + file.getName());
+                    System.out.println(e.toString());
                 }
-                int newValue = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.LEFT);
-                if (newValue < rowsOfEmptyPixelsLeft)
-                    rowsOfEmptyPixelsLeft = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.LEFT);
-                newValue = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.RIGHT);
-                if (newValue < rowsOfEmptyPixelsRight)
-                    rowsOfEmptyPixelsRight = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.RIGHT);
-                newValue = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.TOP);
-                if (newValue < rowsOfEmptyPixelsTop)
-                    rowsOfEmptyPixelsTop = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.TOP);
-                newValue = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.BOTTOM);
-                if (newValue < rowsOfEmptyPixelsBottom)
-                    rowsOfEmptyPixelsBottom = findRowsOfEmptyPixels(sprite, ImageUtils.SIDE.BOTTOM);
+                updateRowsOfEmptyPixels(sprite, TOP);
+                updateRowsOfEmptyPixels(sprite, RIGHT);
+                updateRowsOfEmptyPixels(sprite, BOTTOM);
+                updateRowsOfEmptyPixels(sprite, LEFT);
             }
             imageX -= rowsOfEmptyPixelsLeft + rowsOfEmptyPixelsRight;
             imageY -= rowsOfEmptyPixelsTop + rowsOfEmptyPixelsBottom;

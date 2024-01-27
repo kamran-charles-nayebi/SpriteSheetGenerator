@@ -61,16 +61,6 @@ public class ButtonController {
     }
     @FXML
     void generate(ActionEvent event){
-        System.out.println("Before generating");
-        long maxMemory = Runtime.getRuntime().maxMemory();
-        /* Maximum amount of memory the JVM will attempt to use */
-        System.out.println("Maximum memory (gigabytes): " +
-                (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory/1000000000));
-
-        /* Total memory currently in use by the JVM */
-        System.out.println("Total memory (gigabytes): " +
-                Runtime.getRuntime().totalMemory()/1000000000);
-
         GeneratorService service = new GeneratorService(imageX, imageY, spriteSheetX, spriteSheetY, files);
         File location = new FileChooser().showSaveDialog(window);
         if (location != null) {
